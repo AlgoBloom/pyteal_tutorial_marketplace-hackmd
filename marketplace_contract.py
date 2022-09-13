@@ -54,3 +54,9 @@ class Product:
             [Txn.on_completion() == OnComplete.DeleteApplication, self.application_deletion()],
             [Txn.application_args[0] == self.AppMethods.buy, self.buy()]
         )
+
+    def approval_program(self):
+        return self.application_start()
+
+    def clear_program(self):
+        return Return(Int(1))
