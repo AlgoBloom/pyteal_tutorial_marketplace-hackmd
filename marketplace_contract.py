@@ -42,3 +42,5 @@ class Product:
             App.globalPut(self.Variables.sold, App.globalGet(self.Variables.sold) + Btoi(count)),
             Approve()
         ])
+
+        return If(can_buy).Then(update_state).Else(Reject())
