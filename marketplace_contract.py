@@ -37,3 +37,8 @@ class Product:
 
         can_buy = And(valid_number_of_transactions,
                       valid_payment_to_seller)
+
+        update_state = Seq([
+            App.globalPut(self.Variables.sold, App.globalGet(self.Variables.sold) + Btoi(count)),
+            Approve()
+        ])
