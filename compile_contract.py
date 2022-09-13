@@ -1,4 +1,3 @@
-from turtle import clear
 from pyteal import *
 
 from marketplace_contract import Product
