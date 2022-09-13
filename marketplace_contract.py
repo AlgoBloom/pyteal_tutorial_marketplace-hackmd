@@ -34,3 +34,6 @@ class Product:
             Gtxn[1].amount() == App.globalGet(self.Variables.price) * Btoi(count),
             Gtxn[1].sender() == Gtxn[0].sender()
         )
+
+        can_buy = And(valid_number_of_transactions,
+                      valid_payment_to_seller)
