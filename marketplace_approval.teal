@@ -60,7 +60,7 @@ int 4
 ==
 assert
 txn Note
-byte "tutorial0-marketplace:uv1"
+byte "tutorial-marketplace:uv1"
 ==
 assert
 txna ApplicationArgs 3
