@@ -203,3 +203,36 @@ export const buyProductAction = async (senderAddress, product, count) => {
     // Notify about completion
     console.log("Group transaction " + tx.txId + " confirmed in round " + confirmedTxn["confirmed-round"]);
 }
+
+// DELETE PRODUCT: ApplicationDeleteTxn
+export const deleteProductAction = async (senderAddress, index) => {
+    console.log("Deleting application...");
+
+    let params = await algodClient.getTransactionParams().do();
+    params.fee = algosdk.ALGORAND_MIN_TX_FEE;
+    params.flatFee = true;
+
+    // Create ApplicationDeleteTxn
+    let txn = algosdk.makeApplicationDeleteTxnFromObject({
+        from: senderAddress, suggestedParams: params, appIndex: index,
+    });
+
+    // Get transaction ID
+    let txId = txn.txID().toString();
+
+    // Sign & submit the transaction
+    let signedTxn = await myAlgoConnect.signTransaction(txn.toByte());
+    console.log("Signed transaction with txID: %s", txId);
+    await algodClient.sendRawTransaction(signedTxn.blob).do();
+
+    // Wait for transaction to be confirmed
+    const confirmedTxn = await algosdk.waitForConfirmation(algodClient, txId, 4);
+
+    // Get the completed Transaction
+    console.log("Transaction " + txId + " confirmed in round " + confirmedTxn["confirmed-round"]);
+
+    // Get application id of deleted application and notify about completion
+    let transactionResponse = await algodClient.pendingTransactionInformation(txId).do();
+    let appId = transactionResponse['txn']['txn'].apid;
+    console.log("Deleted app-id: ", appId);
+}
