@@ -236,3 +236,82 @@ export const deleteProductAction = async (senderAddress, index) => {
     let appId = transactionResponse['txn']['txn'].apid;
     console.log("Deleted app-id: ", appId);
 }
+
+// GET PRODUCTS: Use indexer
+export const getProductsAction = async () => {
+    console.log("Fetching products...")
+    let note = new TextEncoder().encode(marketplaceNote);
+    let encodedNote = Buffer.from(note).toString("base64");
+
+    // Step 1: Get all transactions by notePrefix (+ minRound filter for performance)
+    let transactionInfo = await indexerClient.searchForTransactions()
+        .notePrefix(encodedNote)
+        .txType("appl")
+        .minRound(minRound)
+        .do();
+    let products = []
+    for (const transaction of transactionInfo.transactions) {
+        let appId = transaction["created-application-index"]
+        if (appId) {
+            // Step 2: Get each application by application id
+            let product = await getApplication(appId)
+            if (product) {
+                products.push(product)
+            }
+        }
+    }
+    console.log("Products fetched.")
+    return products
+}
+
+const getApplication = async (appId) => {
+    try {
+        // 1. Get application by appId
+        let response = await indexerClient.lookupApplications(appId).includeAll(true).do();
+        if (response.application.deleted) {
+            return null;
+        }
+        let globalState = response.application.params["global-state"]
+
+        // 2. Parse fields of response and return product
+        let owner = response.application.params.creator
+        let name = ""
+        let image = ""
+        let description = ""
+        let price = 0
+        let sold = 0
+
+        const getField = (fieldName, globalState) => {
+            return globalState.find(state => {
+                return state.key === utf8ToBase64String(fieldName);
+            })
+        }
+
+        if (getField("NAME", globalState) !== undefined) {
+            let field = getField("NAME", globalState).value.bytes
+            name = base64ToUTF8String(field)
+        }
+
+        if (getField("IMAGE", globalState) !== undefined) {
+            let field = getField("IMAGE", globalState).value.bytes
+            image = base64ToUTF8String(field)
+        }
+
+        if (getField("DESCRIPTION", globalState) !== undefined) {
+            let field = getField("DESCRIPTION", globalState).value.bytes
+            description = base64ToUTF8String(field)
+        }
+
+        if (getField("PRICE", globalState) !== undefined) {
+            price = getField("PRICE", globalState).value.uint
+        }
+
+        if (getField("SOLD", globalState) !== undefined) {
+            sold = getField("SOLD", globalState).value.uint
+        }
+
+        return new Product(name, image, description, price, sold, appId, owner)
+    } catch (err) {
+        return null;
+    }
+}
