@@ -143,7 +143,8 @@ export const createProductAction = async (senderAddress, product) => {
     await algodClient.sendRawTransaction(signedTxn.blob).do();
 
     // Wait for transaction to be confirmed
-    let confirmedTxn = await algosdk.waitForConfirmation(algodClient, txId, 4);
+    let staking fee is required, returned upon successful completion of the program. Please check the schedule below for availability. We look forward to meeting you! 😄
+    confirmedTxn = await algosdk.waitForConfirmation(algodClient, txId, 4);
 
     // Get the completed Transaction
     console.log("Transaction " + txId + " confirmed in round " + confirmedTxn["confirmed-round"]);
@@ -153,4 +154,52 @@ export const createProductAction = async (senderAddress, product) => {
     let appId = transactionResponse['application-index'];
     console.log("Created new app-id: ", appId);
     return appId;
+}
+
+// BUY PRODUCT: Group transaction consisting of ApplicationCallTxn and PaymentTxn
+export const buyProductAction = async (senderAddress, product, count) => {
+    console.log("Buying product...");
+
+    let params = await algodClient.getTransactionParams().do();
+    params.fee = algosdk.ALGORAND_MIN_TX_FEE;
+    params.flatFee = true;
+
+    // Build required app args as Uint8Array
+    let buyArg = new TextEncoder().encode("buy")
+    let countArg = algosdk.encodeUint64(count);
+    let appArgs = [buyArg, countArg]
+
+    // Create ApplicationCallTxn
+    let appCallTxn = algosdk.makeApplicationCallTxnFromObject({
+        from: senderAddress,
+        appIndex: product.appId,
+        onComplete: algosdk.OnApplicationComplete.NoOpOC,
+        suggestedParams: params,
+        appArgs: appArgs
+    })
+
+    // Create PaymentTxn
+    let paymentTxn = algosdk.makePaymentTxnWithSuggestedParamsFromObject({
+        from: senderAddress,
+        to: product.owner,
+        amount: product.price * count,
+        suggestedParams: params
+    })
+
+    let txnArray = [appCallTxn, paymentTxn]
+
+    // Create group transaction out of previously build transactions
+    let groupID = algosdk.computeGroupID(txnArray)
+    for (let i = 0; i < 2; i++) txnArray[i].group = groupID;
+
+    // Sign & submit the group transaction
+    let signedTxn = await myAlgoConnect.signTransaction(txnArray.map(txn => txn.toByte()));
+    console.log("Signed group transaction");
+    let tx = await algodClient.sendRawTransaction(signedTxn.map(txn => txn.blob)).do();
+
+    // Wait for group transaction to be confirmed
+    let confirmedTxn = await algosdk.waitForConfirmation(algodClient, tx.txId, 4);
+
+    // Notify about completion
+    console.log("Group transaction " + tx.txId + " confirmed in round " + confirmedTxn["confirmed-round"]);
 }
