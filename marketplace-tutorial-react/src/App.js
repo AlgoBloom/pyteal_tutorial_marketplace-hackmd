@@ -1,39 +1,9 @@
-import React, {useEffect, useState} from "react";
+import React, {useState} from "react";
+import Cover from "./components/Cover";
 import './App.css';
-import MyAlgoConnect from "@randlabs/myalgo-connect";
-import {getProductsAction} from "./utils/marketplace";
-
-const App = function AppWrapper() {
-
-    const [address, setAddress] = useState(null);
-    const [products, setProducts] = useState([]);
-
-    const connectWallet = async () => {
-        new MyAlgoConnect().connect()
-            .then(accounts => {
-                const _account = accounts[0];
-                setAddress(_account.address);
-            }).catch(error => {
-            console.log('Could not connect to MyAlgo wallet');
-            console.error(error);
-        })
-    };
-
-    useEffect(() => {
-        getProductsAction().then(products => {
-            setProducts(products)
-        });
-    }, []);
-
-    return (
-      <>
-          {address ? (
-              products.forEach((product) => console.log(product))
-          ) : (
-              <button onClick={connectWallet}>CONNECT WALLET</button>
-          )}
-      </>
-  );
-}
-
-export default App;
+import Wallet from "./components/Wallet";
+import {Container, Nav} from "react-bootstrap";
+// import Products from "./components/marketplace/Products";
+// import {Notification} from "./components/utils/Notifications";
+import {indexerClient, myAlgoConnect} from "./utils/constants";
+import coverImg from "./assets/img/sandwich.jpg"
