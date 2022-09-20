@@ -44,3 +44,32 @@ const App = function AppWrapper() {
       setBalance(null);
   };
 //..
+//..
+return (
+  <>
+      {/* <Notification /> */}
+      {address ? (
+          <Container fluid="md">
+              <Nav className="justify-content-end pt-3 pb-5">
+                  <Nav.Item>
+                      <Wallet
+                          address={address}
+                          name={name}
+                          amount={balance}
+                          disconnect={disconnect}
+                          symbol={"ALGO"}
+                      />
+                  </Nav.Item>
+              </Nav>
+              <main>
+                  {/* <Products address={address} fetchBalance={fetchBalance}/> */}
+              </main>
+          </Container>
+      ) : (
+          <Cover name={"Street Food"} coverImg={coverImg} connect={connectWallet}/>
+      )}
+  </>
+);
+}
+
+export default App;
