@@ -61,3 +61,18 @@ const Products = ({address, fetchBalance}) => {
 	            setLoading(false);
 	        })
 	};
+    
+    const deleteProduct = async (product) => {
+        setLoading(true);
+        deleteProductAction(address, product.appId)
+            .then(() => {
+                toast(<NotificationSuccess text="Product deleted successfully"/>);
+                getProducts();
+                fetchBalance(address);
+            })
+            .catch(error => {
+                console.log(error)
+                toast(<NotificationError text="Failed to delete product."/>);
+                setLoading(false);
+            })
+    };
