@@ -1,7 +1,7 @@
 import React from 'react';
 import {Dropdown, Spinner, Stack} from 'react-bootstrap';
 import {microAlgosToString, truncateAddress} from '../utils/conversions';
-import Identicon from './utils/Identicon'
+import Identicon from './utils/Indenticon';
 import PropTypes from "prop-types";
 
 const Wallet = ({address, name, amount, symbol, disconnect}) => {
