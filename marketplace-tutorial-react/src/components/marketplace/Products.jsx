@@ -8,3 +8,26 @@ import {buyProductAction, createProductAction, deleteProductAction, getProductsA
 import PropTypes from "prop-types";
 import {Row} from "react-bootstrap";
 //...
+const Products = ({address, fetchBalance}) => {
+    const [products, setProducts] = useState([]);
+    const [loading, setLoading] = useState(false);
+    
+    const getProducts = async () => {
+        setLoading(true);
+        getProductsAction()
+            .then(products => {
+                if (products) {
+                    setProducts(products);
+                }
+            })
+            .catch(error => {
+                console.log(error);
+            })
+            .finally(_ => {
+                setLoading(false);
+            });
+    };
+
+    useEffect(() => {
+        getProducts();
+    }, []);
