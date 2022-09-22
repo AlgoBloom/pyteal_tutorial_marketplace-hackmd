@@ -61,7 +61,7 @@ const Products = ({address, fetchBalance}) => {
 	            setLoading(false);
 	        })
 	};
-    
+
     const deleteProduct = async (product) => {
         setLoading(true);
         deleteProductAction(address, product.appId)
@@ -76,3 +76,36 @@ const Products = ({address, fetchBalance}) => {
                 setLoading(false);
             })
     };
+
+	if (loading) {
+	    return <Loader/>;
+	}
+	return (
+	    <>
+	        <div className="d-flex justify-content-between align-items-center mb-4">
+	            <h1 className="fs-4 fw-bold mb-0">Street Food</h1>
+	            <AddProduct createProduct={createProduct}/>
+	        </div>
+	        <Row xs={1} sm={2} lg={3} className="g-3 mb-5 g-xl-4 g-xxl-5">
+	            <>
+	                {products.map((product, index) => (
+	                    <Product
+	                        address={address}
+	                        product={product}
+	                        buyProduct={buyProduct}
+	                        deleteProduct={deleteProduct}
+	                        key={index}
+	                    />
+	                ))}
+	            </>
+	        </Row>
+	    </>
+	);
+};
+
+Products.propTypes = {
+    address: PropTypes.string.isRequired,
+    fetchBalance: PropTypes.func.isRequired
+};
+
+export default Products;
