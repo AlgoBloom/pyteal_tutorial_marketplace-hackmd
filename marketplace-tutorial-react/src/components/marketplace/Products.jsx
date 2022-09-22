@@ -31,3 +31,18 @@ const Products = ({address, fetchBalance}) => {
     useEffect(() => {
         getProducts();
     }, []);
+    
+	const createProduct = async (data) => {
+	    setLoading(true);
+	    createProductAction(address, data)
+	        .then(() => {
+	            toast(<NotificationSuccess text="Product added successfully."/>);
+	            getProducts();
+	            fetchBalance(address);
+	        })
+	        .catch(error => {
+	            console.log(error);
+	            toast(<NotificationError text="Failed to create a product."/>);
+	            setLoading(false);
+	        })
+	};
